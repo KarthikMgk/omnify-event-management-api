@@ -5,13 +5,17 @@ from django.core.exceptions import ValidationError
 
 
 
-class Events:
-    id = models.IntegerField(primary_key=True)
+class Events(models.Model):
+    id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=128)
     location = models.CharField(max_length=128)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     max_capacity = models.IntegerField(validators=[MinValueValidator(25)])
+
+    class Meta:
+        db_table = 'events'
+        managed = True
 
     def clean(self):
         super().clean()
