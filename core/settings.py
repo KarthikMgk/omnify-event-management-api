@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'events',
     'event_attendees',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -72,6 +73,11 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
+REST_FRAMEWORK = {
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 10
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
@@ -127,4 +133,12 @@ STATIC_URL = 'static/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# drf-spectacular OpenAPI/Swagger schema settings
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Omnify Event Management API',
+    'DESCRIPTION': 'API documentation for managing events and attendees.',
+    'VERSION': '1.0.0',
+}

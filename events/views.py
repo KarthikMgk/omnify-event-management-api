@@ -5,30 +5,50 @@ from event_attendees.models import EventAttendee
 from event_attendees.serializers import EventAttendeeSerializer, ListEventAttendeeSerializer
 from .serializers import EventSerializer
 from rest_framework.exceptions import ValidationError
+from asgiref.sync import sync_to_async
+from drf_spectacular.utils import extend_schema
 
 # Create your views here.
+@extend_schema(
+    summary="List and create events",
+    description="Retrieve a list of all events or create a new event.",
+    responses={200: EventSerializer(many=True)},
+    request=EventSerializer
+)
 class EventsListAPIView(ListCreateAPIView):
     queryset = Events.objects.all()
     serializer_class = EventSerializer
 
+
+@extend_schema(
+    summary="Register for event",
+    description="Register a new attendee for a specific event by ID.",
+    request=EventAttendeeSerializer,
+    responses={201: EventAttendeeSerializer},
+)
 class RegisterAttendeeCreateView(CreateAPIView):
     queryset = EventAttendee.objects.all()
     serializer_class = EventAttendeeSerializer
 
-    def perform_create(self, serializer):
+    async def perform_create(self, serializer):
         event_id = self.kwargs['id']
         print(self.request.data, " is the payload")
         try:
-            event = Events.objects.get(id=event_id)
+            event = await sync_to_async(Events.objects.get)(id=event_id)
         except Events.DoesNotExist:
             raise ValidationError('Event not found')
         
-        current_attendee_count = event.attendees.count()
+        current_attendee_count = await sync_to_async(lambda: event.attendees.count())()
         if current_attendee_count > event.max_capacity:
             raise ValidationError('Registration closed: max capacity reached')
         
-        serializer.save(event=event)
+        await sync_to_async(serializer.save)(event=event)
 
+@extend_schema(
+    summary="List all event attendees",
+    description="Get a list of all registered attendees for all events.",
+    responses={200: ListEventAttendeeSerializer(many=True)}
+)
 class EventAttendeesListAPIView(ListAPIView):
     queryset = EventAttendee.objects.all()
     serializer_class = ListEventAttendeeSerializer

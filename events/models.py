@@ -7,7 +7,7 @@ from django.core.exceptions import ValidationError
 
 class Events(models.Model):
     id = models.AutoField(primary_key=True)
-    name = models.CharField(max_length=128)
+    name = models.CharField(max_length=128, null=False, blank=False)
     location = models.CharField(max_length=128)
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
