@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'events',
     'event_attendees',
     'drf_spectacular',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
