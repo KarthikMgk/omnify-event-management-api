@@ -79,6 +79,9 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
+USE_TZ = True
+TIME_ZONE = 'Asia/Kolkata'
+
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 

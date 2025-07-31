@@ -5,7 +5,9 @@ from event_attendees.models import EventAttendee
 from event_attendees.serializers import EventAttendeeSerializer, ListEventAttendeeSerializer
 from .serializers import EventSerializer
 from rest_framework.exceptions import ValidationError
-from asgiref.sync import sync_to_async
+from rest_framework.response import Response
+from rest_framework import status
+from asgiref.sync import sync_to_async, async_to_sync
 from drf_spectacular.utils import extend_schema
 
 # Create your views here.
@@ -30,9 +32,19 @@ class RegisterAttendeeCreateView(CreateAPIView):
     queryset = EventAttendee.objects.all()
     serializer_class = EventAttendeeSerializer
 
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['event_id'] = self.kwargs['id']
+        return context
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        async_to_sync(self.perform_create)(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
     async def perform_create(self, serializer):
         event_id = self.kwargs['id']
-        print(self.request.data, " is the payload")
         try:
             event = await sync_to_async(Events.objects.get)(id=event_id)
         except Events.DoesNotExist:
