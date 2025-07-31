@@ -62,5 +62,13 @@ class RegisterAttendeeCreateView(CreateAPIView):
     responses={200: ListEventAttendeeSerializer(many=True)}
 )
 class EventAttendeesListAPIView(ListAPIView):
-    queryset = EventAttendee.objects.all()
     serializer_class = ListEventAttendeeSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context['event_id'] = self.kwargs['id']
+        return context
+
+    def get_queryset(self):
+        event_id = self.kwargs.get('id')
+        return EventAttendee.objects.filter(event_id=event_id)
